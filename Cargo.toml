@@ -1,0 +1,4 @@
+[package]
+name = "appdirs"
+version = "0.1.0"
+authors = ["Dirkjan Ochtman <dirkjan@ochtman.nl>"]
