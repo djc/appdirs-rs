@@ -161,17 +161,17 @@ mod tests {
     #[test]
     fn output_dirs() {
         to_stderr("user data dir",
-                  super::user_data_dir(Some("AppDirs"), None, false));
+                  super::user_data_dir(Some("AppDirs"), Some("djc"), false));
         to_stderr("site data dir",
-                  super::site_data_dir(Some("AppDirs"), None));
+                  super::site_data_dir(Some("AppDirs"), Some("djc")));
         to_stderr("user config dir",
-                  super::user_config_dir(Some("AppDirs"), None, false));
+                  super::user_config_dir(Some("AppDirs"), Some("djc"), false));
         to_stderr("site config dir",
-                  super::site_config_dir(Some("AppDirs"), None));
+                  super::site_config_dir(Some("AppDirs"), Some("djc")));
         to_stderr("user cache dir",
-                  super::user_cache_dir(Some("AppDirs"), None));
+                  super::user_cache_dir(Some("AppDirs"), Some("djc")));
         to_stderr("user log dir",
-                  super::user_log_dir(Some("AppDirs"), None));
+                  super::user_log_dir(Some("AppDirs"), Some("djc")));
     }
 
 }
