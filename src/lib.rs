@@ -25,6 +25,36 @@ pub fn user_data_dir(app: Option<&str>, _: Option<&str>, _: bool) -> PathBuf {
     home_dir_relative("Library/Application Support", app)
 }
 
+#[cfg(target_os = "macos")]
+pub fn site_data_dir(app: Option<&str>, _: Option<&str>) -> PathBuf {
+    let mut data_dir = PathBuf::new();
+    data_dir.push("/Library/Application Support");
+    if app.is_some() {
+        data_dir.push(app.unwrap());
+    }
+    data_dir
+}
+
+#[cfg(target_os = "macos")]
+pub fn user_config_dir(app: Option<&str>, author: Option<&str>, roaming: bool) -> PathBuf {
+    user_data_dir(app, author, roaming)
+}
+
+#[cfg(target_os = "macos")]
+pub fn site_config_dir(app: Option<&str>, author: Option<&str>) -> PathBuf {
+    site_data_dir(app, author)
+}
+
+#[cfg(target_os = "macos")]
+pub fn user_cache_dir(app: Option<&str>, _: Option<&str>) -> PathBuf {
+    home_dir_relative("Library/Caches", app)
+}
+
+#[cfg(target_os = "macos")]
+pub fn user_log_dir(app: Option<&str>, _: Option<&str>) -> PathBuf {
+    home_dir_relative("Library/Logs", app)
+}
+
 #[cfg(all(unix, not(target_os = "macos"), not(target_os = "ios"), not(target_os = "android")))]
 pub fn user_data_dir(app: Option<&str>, _: Option<&str>, _: bool) -> PathBuf {
     let mut data_dir = PathBuf::new();
@@ -35,16 +65,6 @@ pub fn user_data_dir(app: Option<&str>, _: Option<&str>, _: bool) -> PathBuf {
             data_dir.push(".local/share");
         },
     };
-    if app.is_some() {
-        data_dir.push(app.unwrap());
-    }
-    data_dir
-}
-
-#[cfg(target_os = "macos")]
-pub fn site_data_dir(app: Option<&str>, _: Option<&str>) -> PathBuf {
-    let mut data_dir = PathBuf::new();
-    data_dir.push("/Library/Application Support");
     if app.is_some() {
         data_dir.push(app.unwrap());
     }
@@ -71,11 +91,6 @@ pub fn site_data_dir(app: Option<&str>, _: Option<&str>) -> PathBuf {
     data_dir
 }
 
-#[cfg(target_os = "macos")]
-pub fn user_config_dir(app: Option<&str>, author: Option<&str>, roaming: bool) -> PathBuf {
-    user_data_dir(app, author, roaming)
-}
-
 #[cfg(all(unix, not(target_os = "macos"), not(target_os = "ios"), not(target_os = "android")))]
 pub fn user_config_dir(app: Option<&str>, _: Option<&str>, _: bool) -> PathBuf {
     let mut config_dir = PathBuf::new();
@@ -90,11 +105,6 @@ pub fn user_config_dir(app: Option<&str>, _: Option<&str>, _: bool) -> PathBuf {
         config_dir.push(app.unwrap());
     }
     config_dir
-}
-
-#[cfg(target_os = "macos")]
-pub fn site_config_dir(app: Option<&str>, author: Option<&str>) -> PathBuf {
-    site_data_dir(app, author)
 }
 
 #[cfg(all(unix, not(target_os = "macos"), not(target_os = "ios"), not(target_os = "android")))]
@@ -117,11 +127,6 @@ pub fn site_config_dir(app: Option<&str>, _: Option<&str>) -> PathBuf {
     data_dir
 }
 
-#[cfg(target_os = "macos")]
-pub fn user_cache_dir(app: Option<&str>, _: Option<&str>) -> PathBuf {
-    home_dir_relative("Library/Caches", app)
-}
-
 #[cfg(all(unix, not(target_os = "macos"), not(target_os = "ios"), not(target_os = "android")))]
 pub fn user_cache_dir(app: Option<&str>, _: Option<&str>) -> PathBuf {
     let mut cache_dir = PathBuf::new();
@@ -136,11 +141,6 @@ pub fn user_cache_dir(app: Option<&str>, _: Option<&str>) -> PathBuf {
         cache_dir.push(app.unwrap());
     }
     cache_dir
-}
-
-#[cfg(target_os = "macos")]
-pub fn user_log_dir(app: Option<&str>, _: Option<&str>) -> PathBuf {
-    home_dir_relative("Library/Logs", app)
 }
 
 #[cfg(all(unix, not(target_os = "macos"), not(target_os = "ios"), not(target_os = "android")))]
