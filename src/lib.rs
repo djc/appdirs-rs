@@ -56,19 +56,24 @@ pub fn user_log_dir(app: Option<&str>, _: Option<&str>) -> PathBuf {
 }
 
 #[cfg(all(unix, not(target_os = "macos"), not(target_os = "ios"), not(target_os = "android")))]
-pub fn user_data_dir(app: Option<&str>, _: Option<&str>, _: bool) -> PathBuf {
+fn home_dir_relative(xdg_key: &str, rel: &str, app: Option<&str>) -> PathBuf {
     let mut data_dir = PathBuf::new();
-    match env::var_os("XDG_DATA_HOME") {
+    match env::var_os(xdg_key) {
         Some(dir) => { data_dir.push(dir); },
         None => {
             data_dir.push(env::home_dir().unwrap());
-            data_dir.push(".local/share");
+            data_dir.push(rel);
         },
     };
     if app.is_some() {
         data_dir.push(app.unwrap());
     }
     data_dir
+}
+
+#[cfg(all(unix, not(target_os = "macos"), not(target_os = "ios"), not(target_os = "android")))]
+pub fn user_data_dir(app: Option<&str>, _: Option<&str>, _: bool) -> PathBuf {
+    home_dir_relative("XDG_DATA_HOME", ".local/share", app)
 }
 
 #[cfg(all(unix, not(target_os = "macos"), not(target_os = "ios"), not(target_os = "android")))]
@@ -93,18 +98,7 @@ pub fn site_data_dir(app: Option<&str>, _: Option<&str>) -> PathBuf {
 
 #[cfg(all(unix, not(target_os = "macos"), not(target_os = "ios"), not(target_os = "android")))]
 pub fn user_config_dir(app: Option<&str>, _: Option<&str>, _: bool) -> PathBuf {
-    let mut config_dir = PathBuf::new();
-    match env::var_os("XDG_CONFIG_HOME") {
-        Some(dir) => { config_dir.push(dir); },
-        None => {
-            config_dir.push(env::home_dir().unwrap());
-            config_dir.push(".config");
-        },
-    };
-    if app.is_some() {
-        config_dir.push(app.unwrap());
-    }
-    config_dir
+    home_dir_relative("XDG_CONFIG_HOME", ".config", app)
 }
 
 #[cfg(all(unix, not(target_os = "macos"), not(target_os = "ios"), not(target_os = "android")))]
@@ -129,18 +123,7 @@ pub fn site_config_dir(app: Option<&str>, _: Option<&str>) -> PathBuf {
 
 #[cfg(all(unix, not(target_os = "macos"), not(target_os = "ios"), not(target_os = "android")))]
 pub fn user_cache_dir(app: Option<&str>, _: Option<&str>) -> PathBuf {
-    let mut cache_dir = PathBuf::new();
-    match env::var_os("XDG_CACHE_HOME") {
-        Some(dir) => { cache_dir.push(dir); },
-        None => {
-            cache_dir.push(env::home_dir().unwrap());
-            cache_dir.push(".cache");
-        },
-    };
-    if app.is_some() {
-        cache_dir.push(app.unwrap());
-    }
-    cache_dir
+    home_dir_relative("XDG_CACHE_HOME", ".cache", app)
 }
 
 #[cfg(all(unix, not(target_os = "macos"), not(target_os = "ios"), not(target_os = "android")))]
