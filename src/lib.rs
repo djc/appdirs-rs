@@ -11,73 +11,82 @@ use std::path::PathBuf;
 
 
 #[cfg(target_os = "macos")]
-fn home_dir_relative(rel: &str, app: Option<&str>) -> PathBuf {
-    let mut data_dir = env::home_dir().unwrap();
+fn home_dir_relative(rel: &str, app: Option<&str>) -> Result<PathBuf, ()> {
+    let data_dir_res = env::home_dir();
+    if data_dir_res.is_none() {
+        return Err(());
+    }
+    let mut data_dir = data_dir_res.unwrap();
     data_dir.push(rel);
     if app.is_some() {
         data_dir.push(app.unwrap());
     }
-    data_dir
+    Ok(data_dir)
 }
 
 #[cfg(target_os = "macos")]
-pub fn user_data_dir(app: Option<&str>, _: Option<&str>, _: bool) -> PathBuf {
+pub fn user_data_dir(app: Option<&str>, _: Option<&str>, _: bool) -> Result<PathBuf, ()> {
     home_dir_relative("Library/Application Support", app)
 }
 
 #[cfg(target_os = "macos")]
-pub fn site_data_dir(app: Option<&str>, _: Option<&str>) -> PathBuf {
+pub fn site_data_dir(app: Option<&str>, _: Option<&str>) -> Result<PathBuf, ()> {
     let mut data_dir = PathBuf::new();
     data_dir.push("/Library/Application Support");
     if app.is_some() {
         data_dir.push(app.unwrap());
     }
-    data_dir
+    Ok(data_dir)
 }
 
 #[cfg(target_os = "macos")]
-pub fn user_config_dir(app: Option<&str>, author: Option<&str>, roaming: bool) -> PathBuf {
+pub fn user_config_dir(app: Option<&str>, author: Option<&str>, roaming: bool)
+                       -> Result<PathBuf, ()> {
     user_data_dir(app, author, roaming)
 }
 
 #[cfg(target_os = "macos")]
-pub fn site_config_dir(app: Option<&str>, author: Option<&str>) -> PathBuf {
+pub fn site_config_dir(app: Option<&str>, author: Option<&str>) -> Result<PathBuf, ()> {
     site_data_dir(app, author)
 }
 
 #[cfg(target_os = "macos")]
-pub fn user_cache_dir(app: Option<&str>, _: Option<&str>) -> PathBuf {
+pub fn user_cache_dir(app: Option<&str>, _: Option<&str>) -> Result<PathBuf, ()> {
     home_dir_relative("Library/Caches", app)
 }
 
 #[cfg(target_os = "macos")]
-pub fn user_log_dir(app: Option<&str>, _: Option<&str>) -> PathBuf {
+pub fn user_log_dir(app: Option<&str>, _: Option<&str>) -> Result<PathBuf, ()> {
     home_dir_relative("Library/Logs", app)
 }
 
 #[cfg(all(unix, not(target_os = "macos"), not(target_os = "ios"), not(target_os = "android")))]
-fn home_dir_relative(xdg_key: &str, rel: &str, app: Option<&str>) -> PathBuf {
+fn home_dir_relative(xdg_key: &str, rel: &str, app: Option<&str>) -> Result<PathBuf, ()> {
     let mut data_dir = PathBuf::new();
     match env::var_os(xdg_key) {
         Some(dir) => { data_dir.push(dir); },
         None => {
-            data_dir.push(env::home_dir().unwrap());
+            let home_res = env::home_dir();
+            if home_res.is_none() {
+                return Err(());
+            }
+            data_dir.push(home_res.unwrap());
             data_dir.push(rel);
         },
     };
     if app.is_some() {
         data_dir.push(app.unwrap());
     }
-    data_dir
+    Ok(data_dir)
 }
 
 #[cfg(all(unix, not(target_os = "macos"), not(target_os = "ios"), not(target_os = "android")))]
-pub fn user_data_dir(app: Option<&str>, _: Option<&str>, _: bool) -> PathBuf {
+pub fn user_data_dir(app: Option<&str>, _: Option<&str>, _: bool) -> Result<PathBuf, ()> {
     home_dir_relative("XDG_DATA_HOME", ".local/share", app)
 }
 
 #[cfg(all(unix, not(target_os = "macos"), not(target_os = "ios"), not(target_os = "android")))]
-pub fn site_data_dir(app: Option<&str>, _: Option<&str>) -> PathBuf {
+pub fn site_data_dir(app: Option<&str>, _: Option<&str>) -> Result<PathBuf, ()> {
     let mut data_dir = PathBuf::new();
     let default = "/usr/local/share";
     match env::var_os("XDG_DATA_DIRS") {
@@ -93,16 +102,16 @@ pub fn site_data_dir(app: Option<&str>, _: Option<&str>) -> PathBuf {
     if app.is_some() {
         data_dir.push(app.unwrap());
     }
-    data_dir
+    Ok(data_dir)
 }
 
 #[cfg(all(unix, not(target_os = "macos"), not(target_os = "ios"), not(target_os = "android")))]
-pub fn user_config_dir(app: Option<&str>, _: Option<&str>, _: bool) -> PathBuf {
+pub fn user_config_dir(app: Option<&str>, _: Option<&str>, _: bool) -> Result<PathBuf, ()> {
     home_dir_relative("XDG_CONFIG_HOME", ".config", app)
 }
 
 #[cfg(all(unix, not(target_os = "macos"), not(target_os = "ios"), not(target_os = "android")))]
-pub fn site_config_dir(app: Option<&str>, _: Option<&str>) -> PathBuf {
+pub fn site_config_dir(app: Option<&str>, _: Option<&str>) -> Result<PathBuf, ()> {
     let mut data_dir = PathBuf::new();
     let default = "/etc/xdg";
     match env::var_os("XDG_CONFIG_DIRS") {
@@ -118,19 +127,21 @@ pub fn site_config_dir(app: Option<&str>, _: Option<&str>) -> PathBuf {
     if app.is_some() {
         data_dir.push(app.unwrap());
     }
-    data_dir
+    Ok(data_dir)
 }
 
 #[cfg(all(unix, not(target_os = "macos"), not(target_os = "ios"), not(target_os = "android")))]
-pub fn user_cache_dir(app: Option<&str>, _: Option<&str>) -> PathBuf {
+pub fn user_cache_dir(app: Option<&str>, _: Option<&str>) -> Result<PathBuf, ()> {
     home_dir_relative("XDG_CACHE_HOME", ".cache", app)
 }
 
 #[cfg(all(unix, not(target_os = "macos"), not(target_os = "ios"), not(target_os = "android")))]
-pub fn user_log_dir(app: Option<&str>, author: Option<&str>) -> PathBuf {
-    let mut log_dir = user_cache_dir(app, author);
-    log_dir.push("log");
-    log_dir
+pub fn user_log_dir(app: Option<&str>, author: Option<&str>) -> Result<PathBuf, ()> {
+    let log_dir = user_cache_dir(app, author);
+    match log_dir {
+        Ok(mut log_dir) => { log_dir.push("log"); Ok(log_dir) },
+        Err(err) => Err(err),
+    }
 }
 
 #[cfg(target_os = "windows")]
@@ -196,54 +207,60 @@ fn get_dir(id: &winapi::shtypes::KNOWNFOLDERID) -> Result<OsString, ()> {
 }
 
 #[cfg(target_os = "windows")]
-pub fn user_data_dir(app: Option<&str>, author: Option<&str>, roaming: bool) -> PathBuf {
+pub fn user_data_dir(app: Option<&str>, author: Option<&str>, roaming: bool)
+                     -> Result<PathBuf, ()> {
     let dir_id = if roaming { APPDATA_GUID } else { LOCAL_APPDATA_GUID };
     let mut data_dir = PathBuf::new();
-    data_dir.push(get_dir(&dir_id).unwrap());
+    data_dir.push(try!(get_dir(&dir_id)));
     if author.is_some() {
         data_dir.push(author.unwrap());
     }
     if app.is_some() {
         data_dir.push(app.unwrap());
     }
-    data_dir
+    Ok(data_dir)
 }
 
 #[cfg(target_os = "windows")]
-pub fn site_data_dir(app: Option<&str>, author: Option<&str>) -> PathBuf {
+pub fn site_data_dir(app: Option<&str>, author: Option<&str>) -> Result<PathBuf, ()> {
     let mut data_dir = PathBuf::new();
-    data_dir.push(get_dir(&COMMON_APPDATA_GUID).unwrap());
+    data_dir.push(try!(get_dir(&COMMON_APPDATA_GUID)));
     if author.is_some() {
         data_dir.push(author.unwrap());
     }
     if app.is_some() {
         data_dir.push(app.unwrap());
     }
-    data_dir
+    Ok(data_dir)
 }
 
 #[cfg(target_os = "windows")]
-pub fn user_config_dir(app: Option<&str>, author: Option<&str>, roaming: bool) -> PathBuf {
+pub fn user_config_dir(app: Option<&str>, author: Option<&str>, roaming: bool)
+                       -> Result<PathBuf, ()> {
     user_data_dir(app, author, roaming)
 }
 
 #[cfg(target_os = "windows")]
-pub fn site_config_dir(app: Option<&str>, author: Option<&str>) -> PathBuf {
+pub fn site_config_dir(app: Option<&str>, author: Option<&str>) -> Result<PathBuf, ()> {
     site_data_dir(app, author)
 }
 
 #[cfg(target_os = "windows")]
-pub fn user_cache_dir(app: Option<&str>, author: Option<&str>) -> PathBuf {
-    let mut cache_dir = user_data_dir(app, author, false);
-    cache_dir.push("Cache");
-    cache_dir
+pub fn user_cache_dir(app: Option<&str>, author: Option<&str>) -> Result<PathBuf, ()> {
+    let cache_dir = user_data_dir(app, author, false);
+    match cache_dir {
+        Ok(mut cache_dir) => { cache_dir.push("Cache"); Ok(cache_dir) },
+        Err(err) => Err(err),
+    }
 }
 
 #[cfg(target_os = "windows")]
-pub fn user_log_dir(app: Option<&str>, author: Option<&str>) -> PathBuf {
+pub fn user_log_dir(app: Option<&str>, author: Option<&str>) -> Result<PathBuf, ()> {
     let mut log_dir = user_data_dir(app, author, false);
-    log_dir.push("Logs");
-    log_dir
+    match log_dir {
+        Ok(mut log_dir) => { log_dir.push("Logs"); Ok(log_dir) },
+        Err(err) => Err(err),
+    }
 }
 
 
@@ -261,17 +278,17 @@ mod tests {
     #[test]
     fn output_dirs() {
         to_stderr("user data dir",
-                  super::user_data_dir(Some("AppDirs"), Some("djc"), false));
+                  super::user_data_dir(Some("AppDirs"), Some("djc"), false).unwrap());
         to_stderr("site data dir",
-                  super::site_data_dir(Some("AppDirs"), Some("djc")));
+                  super::site_data_dir(Some("AppDirs"), Some("djc")).unwrap());
         to_stderr("user config dir",
-                  super::user_config_dir(Some("AppDirs"), Some("djc"), false));
+                  super::user_config_dir(Some("AppDirs"), Some("djc"), false).unwrap());
         to_stderr("site config dir",
-                  super::site_config_dir(Some("AppDirs"), Some("djc")));
+                  super::site_config_dir(Some("AppDirs"), Some("djc")).unwrap());
         to_stderr("user cache dir",
-                  super::user_cache_dir(Some("AppDirs"), Some("djc")));
+                  super::user_cache_dir(Some("AppDirs"), Some("djc")).unwrap());
         to_stderr("user log dir",
-                  super::user_log_dir(Some("AppDirs"), Some("djc")));
+                  super::user_log_dir(Some("AppDirs"), Some("djc")).unwrap());
     }
 
 }
