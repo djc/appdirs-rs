@@ -5,3 +5,8 @@ authors = ["Dirkjan Ochtman <dirkjan@ochtman.nl>"]
 description = "Rust crate for determining platform-specific directories"
 repository = "https://github.com/djc/appdirs-rs"
 license = "MIT"
+
+[target.'cfg(target_os = "windows")'.dependencies]
+ole32-sys = "0.2.0"
+shell32-sys = "0.1.1"
+winapi = "0.2.8"
