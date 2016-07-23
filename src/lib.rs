@@ -11,13 +11,18 @@ use std::path::PathBuf;
 
 
 #[cfg(target_os = "macos")]
-pub fn user_data_dir(app: Option<&str>, _: Option<&str>, _: bool) -> PathBuf {
+fn home_dir_relative(rel: &str, app: Option<&str>) -> PathBuf {
     let mut data_dir = env::home_dir().unwrap();
-    data_dir.push("Library/Application Support");
+    data_dir.push(rel);
     if app.is_some() {
         data_dir.push(app.unwrap());
     }
     data_dir
+}
+
+#[cfg(target_os = "macos")]
+pub fn user_data_dir(app: Option<&str>, _: Option<&str>, _: bool) -> PathBuf {
+    home_dir_relative("Library/Application Support", app)
 }
 
 #[cfg(all(unix, not(target_os = "macos"), not(target_os = "ios"), not(target_os = "android")))]
@@ -114,12 +119,7 @@ pub fn site_config_dir(app: Option<&str>, _: Option<&str>) -> PathBuf {
 
 #[cfg(target_os = "macos")]
 pub fn user_cache_dir(app: Option<&str>, _: Option<&str>) -> PathBuf {
-    let mut cache_dir = env::home_dir().unwrap();
-    cache_dir.push("Library/Caches");
-    if app.is_some() {
-        cache_dir.push(app.unwrap());
-    }
-    cache_dir
+    home_dir_relative("Library/Caches", app)
 }
 
 #[cfg(all(unix, not(target_os = "macos"), not(target_os = "ios"), not(target_os = "android")))]
@@ -140,12 +140,7 @@ pub fn user_cache_dir(app: Option<&str>, _: Option<&str>) -> PathBuf {
 
 #[cfg(target_os = "macos")]
 pub fn user_log_dir(app: Option<&str>, _: Option<&str>) -> PathBuf {
-    let mut log_dir = env::home_dir().unwrap();
-    log_dir.push("Library/Logs");
-    if app.is_some() {
-        log_dir.push(app.unwrap());
-    }
-    log_dir
+    home_dir_relative("Library/Logs", app)
 }
 
 #[cfg(all(unix, not(target_os = "macos"), not(target_os = "ios"), not(target_os = "android")))]
