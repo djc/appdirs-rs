@@ -1,6 +1,6 @@
 [package]
 name = "appdirs"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Dirkjan Ochtman <dirkjan@ochtman.nl>"]
 description = "Rust crate for determining platform-specific directories"
 repository = "https://github.com/djc/appdirs-rs"
