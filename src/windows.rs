@@ -99,7 +99,7 @@ pub fn user_cache_dir(app: Option<&str>, author: Option<&str>) -> Result<PathBuf
 }
 
 pub fn user_log_dir(app: Option<&str>, author: Option<&str>) -> Result<PathBuf, ()> {
-    let mut log_dir = user_data_dir(app, author, false);
+    let log_dir = user_data_dir(app, author, false);
     match log_dir {
         Ok(mut log_dir) => { log_dir.push("Logs"); Ok(log_dir) },
         Err(err) => Err(err),
